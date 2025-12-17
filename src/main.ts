@@ -1,41 +1,49 @@
-import { ValidationPipe } from '@nestjs/common';
+// src/main.ts
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
-import { AuthService } from '@thallesp/nestjs-better-auth';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    // bodyParser: false, // Required for Better Auth
+    bodyParser: false, // Required for Better Auth
   });
 
-  app.useGlobalPipes(new ValidationPipe());
-
-  // Get AuthService to access the Better Auth instance
-  const authService = app.get(AuthService);
-
-  const betterAuthSchema = await authService.api.getOpenAPISchema();
-
   const config = new DocumentBuilder()
-    .setTitle('Cats example')
-    .setDescription('The cats API description')
+    .setTitle('Hader API Documentation')
+    .setDescription('Complete API documentation including authentication')
     .setVersion('1.0')
-    .addTag('cats')
+    .addTag('hader', 'Your application endpoints')
+    .addServer('http://localhost:5001', 'Development server')
     .build();
 
+  // Create your NestJS API document
   const document = SwaggerModule.createDocument(app, config);
 
+  // Single unified Scalar API Reference with multiple sources
   app.use(
-    '/reference',
+    '/docs',
     apiReference({
-      content: document,
+      theme: 'purple',
+      // Merge Better Auth OpenAPI spec as additional source
+      sources: [
+        {
+          title: 'Better Auth',
+          slug: 'better-auth',
+          url: '/auth/open-api/generate-schema',
+        },
+        {
+          title: 'Hader API',
+          slug: 'hader-api',
+          content: document,
+        },
+      ],
     }),
   );
-  await app.listen(process.env.PORT ?? 5001);
 
-  console.log(
-    `🚀 Application is running on: http://localhost:${process.env.PORT ?? 5001}`,
-  );
+  await app.listen(5001);
+  console.log(`🚀 Application is running on: http://localhost:5001`);
+  console.log(`📖 Complete API Reference: http://localhost:5001/docs`);
 }
+
 bootstrap();
