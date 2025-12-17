@@ -1,12 +1,13 @@
+import { ConfigifyModule } from '@itgorillaz/configify';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PostService } from './post.service.js';
-import { PrismaService } from './prisma.service.js';
-import { UserService } from './user.service.js';
+import { PrismaModule } from './core/prisma/prisma.module';
+import { AuthModule } from './core/auth/auth.module';
 
 @Module({
+  imports: [ConfigifyModule.forRootAsync(), PrismaModule, AuthModule],
   controllers: [AppController],
-  providers: [AppService, PrismaService, UserService, PostService],
+  providers: [AppService],
 })
 export class AppModule {}
