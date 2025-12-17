@@ -21,7 +21,10 @@ export class PrismaService
   }
   async onModuleInit() {
     await this.$connect();
-    Logger.log('[PrismaService] initialized, connecting to the database...');
+    Logger.log(
+      '[PrismaService] initialized, connecting to the database...' +
+        this.dbConfig.DATABASE_URL,
+    );
   }
   async onModuleDestroy() {
     await this.$disconnect();
